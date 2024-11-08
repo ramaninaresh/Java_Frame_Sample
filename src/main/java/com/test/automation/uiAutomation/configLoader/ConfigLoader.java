@@ -16,7 +16,7 @@ public class ConfigLoader {
         Properties configProperties = new Properties();
         try (FileInputStream configStream = new FileInputStream(new File(configFilePath))) {
             configProperties.load(configStream);
-            log.info("Main config file loaded successfully.");
+
         } catch (IOException e) {
             log.error("Failed to load main config file at: " + configFilePath, e);
             throw e;
@@ -36,7 +36,6 @@ public class ConfigLoader {
 
         try (FileInputStream langStream = new FileInputStream(languageFile)) {
             languageProperties.load(langStream);
-            log.info("Language data file loaded successfully.");
         } catch (IOException e) {
             log.error("Failed to load language properties file: " + languageFilePath, e);
             throw e;

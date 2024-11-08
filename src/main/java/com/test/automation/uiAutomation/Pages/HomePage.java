@@ -5,46 +5,72 @@ import com.test.automation.uiAutomation.googleVision.GoogleVisionApi;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 
 import com.test.automation.uiAutomation.testBase.TestBase;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.awt.*;
+import java.io.IOException;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
 public class HomePage extends TestBase {
 
 	public static final Logger log = Logger.getLogger(HomePage.class.getName());
+	private GoogleVisionApi visionAPI;
 
-	WebDriver driver;
-	String credentialsPath = System.getProperty("user.dir") + "/src/main/java/com/test/automation/uiAutomation/googleVision/googleconfig.json";
+	WebDriver HomePagedriver;
+	String credentialsPath = System.getProperty("user.dir") + "/src/main/java/com/test/automation/uiAutomation/googleVision/auth.json";
 
 
 	@FindBy(xpath = "//a[contains(@href, '/collections/cats')]/button")
 	WebElement ShopCatsLink;
 
-	public HomePage(WebDriver driver) {
-		this.driver = driver;
-		PageFactory.initElements(driver, this);
+	public HomePage(WebDriver BaseDriver) throws Exception {
+		this.HomePagedriver = BaseDriver;
+		PageFactory.initElements(HomePagedriver, this);
+		String credentialsPath = System.getProperty("user.dir") + "/src/main/java/com/test/automation/uiAutomation/googleVision/auth.json";
+		log.info("Using Google Vision credentials from: " + credentialsPath);
+		this.visionAPI = new GoogleVisionApi(credentialsPath);
+		log.info("HomePageDriver Initialized...!");
+	}
+
+	public void openHomePage() throws InterruptedException {
+		try {
+			// Load the main configuration to get the home URL
+			ConfigLoader configLoader = new ConfigLoader();
+			Properties configProperties = configLoader.loadMainConfig(getConfigPath());
+			String homeUrl = configProperties.getProperty("url");
+
+			// Log and navigate to the home URL
+			log.info("Navigating to the home page: " + homeUrl);
+			HomePagedriver.get(homeUrl);
+
+			// Wait for the page to load completely using TestBase's method
+			waitForPageLoad();
+
+		} catch (IOException e) {
+			log.error("Error loading home page URL from config: ", e);
+		}
 	}
 
 	public boolean isShopCatsLinkTextDisplayed() {
 		try {
-			// Load main configuration properties file from class ConfigLoader
-			ConfigLoader configLoader = new ConfigLoader();
+			// Wait for the ShopCatsLink to be visible
+			waitForElementVisibility(ShopCatsLink);
 
-			String configPath = System.getProperty("user.dir") + "/src/main/java/com/test/automation/uiAutomation/config/config.properties";
-			Properties configProperties = configLoader.loadMainConfig(configPath);
-			String language = configProperties.getProperty("language");
-			log.info("language : " + language);
+			// Load language-specific properties using reusable method from TestBase
+			Properties languageProperties = loadLanguageSpecificProperties();
+			if (languageProperties == null) {
+				log.info("Language properties could not be loaded.");
+				return false;
+			}
 
-			// Load language-specific properties file
-			Properties languageProperties = configLoader.loadLanguageProperties(language);
+			// Get the expected Text
 			String expectedText = languageProperties.getProperty("ShopCatsLinkText");
-			log.info("expectedText : " + expectedText);
+			log.info("Expected text: " + expectedText);
 
 			if (expectedText == null) {
 				log.info("Expected text for 'ShopCatsLinkText' not found in language properties.");
@@ -64,7 +90,6 @@ public class HomePage extends TestBase {
 				log.info("ShopCatsLink text does not match. Expected: " + expectedText + ", but got: " + actualText);
 				return false;
 			}
-
 		} catch (Exception e) {
 			log.error("Error occurred while checking ShopCatsLink text: ", e);
 			return false;
@@ -73,17 +98,19 @@ public class HomePage extends TestBase {
 
 	public boolean isShopCatsLinkTextDisplayedUsingVision() {
 		try {
-			// Load main configuration properties file from class ConfigLoader
-			ConfigLoader configLoader = new ConfigLoader();
-			String configPath = System.getProperty("user.dir") + "/src/main/java/com/test/automation/uiAutomation/config/config.properties";
-			Properties configProperties = configLoader.loadMainConfig(configPath);
-			String language = configProperties.getProperty("language");
-			log.info("language : " + language);
+			// Wait for the ShopCatsLink to be visible
+			waitForElementVisibility(ShopCatsLink);
 
-			// Load language-specific properties file
-			Properties languageProperties = configLoader.loadLanguageProperties(language);
+			// Load language-specific properties using reusable method from TestBase
+			Properties languageProperties = loadLanguageSpecificProperties();
+			if (languageProperties == null) {
+				log.info("Language properties could not be loaded.");
+				return false;
+			}
+
+			// Get the expected Text
 			String expectedText = languageProperties.getProperty("ShopCatsLinkText");
-			log.info("expectedText : " + expectedText);
+			log.info("Expected text: " + expectedText);
 
 			if (expectedText == null) {
 				log.info("Expected text for 'ShopCatsLinkText' not found in language properties.");
@@ -91,15 +118,10 @@ public class HomePage extends TestBase {
 			}
 
 			// Take screenshot of the ShopCatsLink element and save it
+			String imagePath=getElementScreenshot(HomePagedriver, ShopCatsLink, "ShopCatsLink");
 
-			getElementScreenshot(driver,ShopCatsLink, "ShopCatsLink"); // Calls the method to take a screenshot of the element
-			//File will be saved with the name eg  "ShopCatsLink_06_11_2024_16_59_59.png"
+			log.info("Image Path = " +imagePath );
 
-			// Get the path of the saved image using the same name with timestamp
-			String imagePath = System.getProperty("user.dir") + "/src/main/java/com/test/automation/uiAutomation/resources/ShopCatsLink_" + new SimpleDateFormat("dd_MM_yyyy_hh_mm_ss").format(Calendar.getInstance().getTime()) + ".png";
-		//	String imagePath = System.getProperty("user.dir") + "/src/main/java/com/test/automation/uiAutomation/resources/ShopCatsLink_" +".png";
-
-			GoogleVisionApi visionAPI = new GoogleVisionApi(credentialsPath);
 			String actualTextFromImage = visionAPI.detectTextFromImage(imagePath);
 
 			if (actualTextFromImage == null) {
@@ -109,29 +131,67 @@ public class HomePage extends TestBase {
 
 			log.info("Actual text from ShopCatsLink screenshot: " + actualTextFromImage);
 
-			// Split the actual text to get the first phrase (assuming phrases are separated by spaces)
-			String[] words = expectedText.trim().split("\\s+");
-			String firstPhrase = String.join(" ", words);  // Join the expected text words as a phrase
+			// Normalize the actual text and compare
+			String regexPattern = "(" + Pattern.quote(expectedText) + "\\s*)+";
+			String normalizedText = actualTextFromImage.replaceAll(regexPattern, expectedText).trim();
 
-			// Build a dynamic regex pattern based on the expected phrase
-			String regexPattern = "(" + Pattern.quote(firstPhrase) + "\\s*)+";
-
-			// Normalize the actual text by replacing repeated occurrences of the phrase
-			String normalizedText = actualTextFromImage.replaceAll(regexPattern, firstPhrase).trim();
-
-			// Compare the normalized text with the expected text
-			boolean result =normalizedText.equals(expectedText.trim());
-			if(result)
-			{
-				log.info("Result match successfully : normalized Text = " + normalizedText + " , expected Text = " +expectedText);
-			}
-			else {
-				log.info("Result did not matched : normalized Text = " + normalizedText + " , expected Text = " +expectedText);
+			boolean result = normalizedText.equals(expectedText.trim());
+			if (result) {
+				log.info("Text matches successfully: Normalized text = " + normalizedText + ", Expected text = " + expectedText);
+			} else {
+				log.info("Text did not match: Normalized text = " + normalizedText + ", Expected text = " + expectedText);
 			}
 			return result;
 
 		} catch (Exception e) {
 			log.error("Error occurred while checking ShopCatsLink text using Vision: ", e);
+			return false;
+		}
+	}
+
+	public boolean clickAndVerifyShopCatsLinkUrl() {
+		try {
+			// Wait for the ShopCatsLink button to be clickable
+			waitForElementToBeClickable(ShopCatsLink);
+
+			// Click the ShopCatsLink button
+			ShopCatsLink.click();
+			log.info("Clicked on ShopCatsLink button");
+
+			// Wait for navigation (you may adjust the wait time if needed)
+			Thread.sleep(3000);
+
+			// Verify if the URL is as expected
+			String expectedUrl = "https://www.edgardcooper.com/fr/collections/cats/";
+			String currentUrl = HomePagedriver.getCurrentUrl();
+
+			log.info("Expected URL: " + expectedUrl);
+			log.info("Actual URL: " + currentUrl);
+
+			// Return true if the current URL matches the expected URL
+			return currentUrl.equals(expectedUrl);
+
+		} catch (Exception e) {
+			log.error("Error occurred while clicking on ShopCatsLink and verifying URL: ", e);
+			return false;
+		}
+	}
+
+	public boolean isCatlinkPresentUsingGoogleVisionOCR() {
+		// Take a screenshot of the `ShopCatsLink` element
+		log.info("Taking a snapshot of the element");
+		String elementImagePath = getElementScreenshot(HomePagedriver, ShopCatsLink, "ShopCatsLink");
+
+		log.info("Element image Path found as = " + elementImagePath);
+
+		// Take a full-screen screenshot for reference
+		String screenImagePath = getScreenshot(HomePagedriver,"fullScreen", "GoogleVision");
+
+		try {
+			// Check for the presence of the element image on the screen using Google Vision API
+			return visionAPI.isElementImagePresentOCR(elementImagePath, screenImagePath);
+		} catch (IOException e) {
+			log.error("Error checking presence of ShopCatsLink using Google Vision: ", e);
 			return false;
 		}
 	}

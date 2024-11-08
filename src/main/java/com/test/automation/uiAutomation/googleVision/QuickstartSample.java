@@ -4,7 +4,7 @@ public class QuickstartSample {
 
     public static void main(String... args) {
         // Path to the Google Cloud credentials JSON file
-        String credentialsPath = System.getProperty("user.dir") + "/src/main/java/com/test/automation/uiAutomation/googleVision/googleconfig.json";
+        String credentialsPath = System.getProperty("user.dir") + "/src/main/java/com/test/automation/uiAutomation/googleVision/auth.json";
         String imageFileName = System.getProperty("user.dir") + "/src/main/java/com/test/automation/uiAutomation/resources/wakeupcat.png";
 
         GoogleVisionApi visionAPI = null;

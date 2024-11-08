@@ -1,8 +1,13 @@
 ##############################
 ## Java
 automation.out
-src/main/resources/
-src/main/screenshot/
+src/main/java/com/test/automation/uiAutomation/googleVision/auth.json;
+src/main/java/com/test/automation/uiAutomation/resources/
+src/main/java/com/test/automation/uiAutomation/video/
+src/main/java/com/test/automation/uiAutomation/screenshot/
+src/main/java/com/test/automation/uiAutomation/googleVision/*.json
+src/main/java/com/test/automation/uiAutomation/report/
+auth.json
 ##############################
 .mtj.tmp/
 *.class

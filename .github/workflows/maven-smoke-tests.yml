@@ -10,7 +10,7 @@ on:
 
 jobs:
   smoke-tests:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
@@ -30,6 +30,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      - name: Run Chrome Installation Script
+        run: |
+          chmod +x ./scripts/install_chrome.sh
+          ./scripts/install_chrome.sh
+
+      - name: Run Firefox Installation Script
+        run: |
+          chmod +x ./scripts/install_firefox.sh
+          ./scripts/install_firefox.sh
 
       - name: Run Smoke TestNG Suite
         run: mvn clean test -DsuiteXmlFile=smoke.xml

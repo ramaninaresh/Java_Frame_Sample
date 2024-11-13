@@ -8,6 +8,12 @@
  <listener class-name="com.test.automation.uiAutomation.customListner.Listener"></listener>
 </listeners>-->
 
+<test name="HomePage_Suite2">
+    <parameter name="browser" value="firefox" />
+    <classes>
+        <class name="com.test.automation.uiAutomation.HomePage_test.TC002"></class>
+    </classes>
+</test>
 
 <test name="HomePage_Suite2">
     <parameter name="browser" value="chrome" />

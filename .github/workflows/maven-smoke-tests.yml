@@ -30,19 +30,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Download ChromeDriver
-        run: |
-          # Set version to the version of Chrome you are using
-          CHROMEDRIVER_VERSION=$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE)
-          echo "Downloading ChromeDriver version $CHROMEDRIVER_VERSION"
-          
-          # Download and extract the chromedriver
-          wget https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip
-          unzip chromedriver_linux64.zip -d ./drivers/
-          rm chromedriver_linux64.zip
-
-      - name: Make chromedriver executable
-        run: chmod +x ./drivers/chromedriver
 
       - name: Run Smoke TestNG Suite
         run: mvn clean test -DsuiteXmlFile=smoke.xml

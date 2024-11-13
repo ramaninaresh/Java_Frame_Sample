@@ -32,8 +32,8 @@ jobs:
 
       - name: Run Chrome Installation Script
         run: |
-          chmod +x ./scripts/install_chrome.sh
-          ./scripts/install_chrome.sh
+          chmod +x ./scripts/install_chrome_and_chromedriver.sh
+          ./scripts/install_chrome_and_chromedriver.sh
 
       - name: Run Firefox Installation Script
         run: |

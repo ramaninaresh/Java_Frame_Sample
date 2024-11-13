@@ -29,6 +29,12 @@ jobs:
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
+    - name: Download ChromeDriver
+        run:|
+          wget https://chromedriver.storage.googleapis.com/$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE)/chromedriver_linux64.zip
+          unzip chromedriver_linux64.zip
+          mv chromedriver /home/runner/work/Java_Frame_Sample/Java_Frame_Sample/drivers/
+          chmod +x /home/runner/work/Java_Frame_Sample/Java_Frame_Sample/drivers/chromedriver
 
     - name: Run Smoke TestNG Suite
       run: mvn clean test -DsuiteXmlFile=smoke.xml

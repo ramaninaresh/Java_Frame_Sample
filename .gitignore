@@ -6,6 +6,7 @@ src/main/java/com/test/automation/uiAutomation/video/
 src/main/java/com/test/automation/uiAutomation/screenshot/
 src/main/java/com/test/automation/uiAutomation/googleVision/*.json
 src/main/java/com/test/automation/uiAutomation/report/
+src/main/java/com/test/automation/uiAutomation/googleVision/auth.json
 
 ##############################
 .mtj.tmp/

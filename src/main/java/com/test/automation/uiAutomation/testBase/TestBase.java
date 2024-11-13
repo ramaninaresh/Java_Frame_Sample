@@ -10,6 +10,7 @@ import java.util.Properties;
 
 import com.test.automation.uiAutomation.configLoader.ConfigLoader;
 import com.test.automation.uiAutomation.googleVision.GoogleVisionApi;
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -113,13 +114,27 @@ public class TestBase {
 
 	public void selectBrowser(String browser) {
 		log.info(("Initialzing Base Driver"));
+		String os = System.getProperty("os.name").toLowerCase();
 		if (browser.equals("chrome")) {
-			System.setProperty("webdriver.chrome.driver", System.getProperty("user.dir") + "/drivers/chromedriver.exe");
+			if (os.contains("win")) {
+				System.setProperty("webdriver.chrome.driver", System.getProperty("user.dir") + "/drivers/chromedriver.exe"); // it will use the downloaded version for windows
+			}
+			else{
+				System.setProperty("webdriver.chrome.driver", System.getProperty("user.dir") + "/drivers/chromedriver"); // it will use the downloaded version for Linux
+			}
 			driver = new ChromeDriver();
 		} else if (browser.equals("firefox")) {
+			WebDriverManager.firefoxdriver().setup(); // Automatically download as per the browser and as per the os
 			FirefoxOptions options = new FirefoxOptions();
-			options.setBinary("C:\\Users\\163639\\AppData\\Local\\Mozilla Firefox\\firefox.exe");
-			System.setProperty("webdriver.gecko.driver", System.getProperty("user.dir") + "/drivers/geckodriver.exe");
+			if (os.contains("win")) {
+				// For Windows: specify the path to Firefox in windows(adjust as per your local installation)
+				options.setBinary("C:\\Program Files\\Mozilla Firefox\\firefox.exe");
+				//options.setBinary("C:\\Users\\163639\\AppData\\Local\\Mozilla Firefox\\firefox.exe");
+			}
+			else if (os.contains("nix") || os.contains("nux") || os.contains("mac")) {
+				// For Linux and macOS: use default location for Firefox (typically installed at /usr/bin/firefox)
+				options.setBinary("/usr/bin/firefox");
+			}
 			driver = new FirefoxDriver(options);
 		}
 		log.info(("Base Driver is initialized"));
